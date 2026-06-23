@@ -46,6 +46,11 @@ import {
   getTripUrlInputSchema,
 } from "./tools/get-trip-url.js";
 import {
+  getTripForwardingEmail,
+  getTripForwardingEmailDescription,
+  getTripForwardingEmailInputSchema,
+} from "./tools/get-trip-forwarding-email.js";
+import {
   listTrips,
   listTripsDescription,
   listTripsInputSchema,
@@ -80,6 +85,21 @@ import {
   removeNoteDescription,
   removeNoteInputSchema,
 } from "./tools/remove-note.js";
+import {
+  listExpenses,
+  listExpensesDescription,
+  listExpensesInputSchema,
+} from "./tools/list-expenses.js";
+import {
+  removeExpense,
+  removeExpenseDescription,
+  removeExpenseInputSchema,
+} from "./tools/remove-expense.js";
+import {
+  editExpense,
+  editExpenseDescription,
+  editExpenseInputSchema,
+} from "./tools/edit-expense.js";
 import {
   searchGuides,
   searchGuidesDescription,
@@ -163,7 +183,7 @@ Places without notes and times are just pins on a map. Rich places make an itine
 
 export function buildServer(ctx: AppContext): McpServer {
   const server = new McpServer(
-    { name: "wanderlog-mcp", version: "0.2.0" },
+    { name: "wanderlog-mcp", version: "0.3.2" },
     { instructions: SERVER_INSTRUCTIONS },
   );
 
@@ -195,6 +215,17 @@ export function buildServer(ctx: AppContext): McpServer {
       inputSchema: getTripUrlInputSchema,
     },
     requireAuth(ctx, async (args) => getTripUrl(ctx, args as Parameters<typeof getTripUrl>[1])),
+  );
+
+  server.registerTool(
+    "wanderlog_get_trip_forwarding_email",
+    {
+      title: "Get a trip's email-import address",
+      description: getTripForwardingEmailDescription,
+      inputSchema: getTripForwardingEmailInputSchema,
+    },
+    requireAuth(ctx, async (args) =>
+      getTripForwardingEmail(ctx, args as Parameters<typeof getTripForwardingEmail>[1])),
   );
 
   server.registerTool(
@@ -301,6 +332,39 @@ export function buildServer(ctx: AppContext): McpServer {
     },
     requireAuth(ctx, async (args) =>
       addExpense(ctx, args as Parameters<typeof addExpense>[1])),
+  );
+
+  server.registerTool(
+    "wanderlog_list_expenses",
+    {
+      title: "List budget expenses on a Wanderlog trip",
+      description: listExpensesDescription,
+      inputSchema: listExpensesInputSchema,
+    },
+    requireAuth(ctx, async (args) =>
+      listExpenses(ctx, args as Parameters<typeof listExpenses>[1])),
+  );
+
+  server.registerTool(
+    "wanderlog_remove_expense",
+    {
+      title: "Remove a budget expense from a Wanderlog trip",
+      description: removeExpenseDescription,
+      inputSchema: removeExpenseInputSchema,
+    },
+    requireAuth(ctx, async (args) =>
+      removeExpense(ctx, args as Parameters<typeof removeExpense>[1])),
+  );
+
+  server.registerTool(
+    "wanderlog_edit_expense",
+    {
+      title: "Edit a budget expense on a Wanderlog trip",
+      description: editExpenseDescription,
+      inputSchema: editExpenseInputSchema,
+    },
+    requireAuth(ctx, async (args) =>
+      editExpense(ctx, args as Parameters<typeof editExpense>[1])),
   );
 
   server.registerTool(
