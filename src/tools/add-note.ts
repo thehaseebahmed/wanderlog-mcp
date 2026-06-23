@@ -24,6 +24,12 @@ export const addNoteInputSchema = {
     .describe(
       "Optional day to add the note to. Accepts 'day 2', 'May 4', or ISO '2026-05-04'. Omit to add to the 'Places to visit' list.",
     ),
+  section: z
+    .string()
+    .optional()
+    .describe(
+      "Optional custom section name to add the note to (e.g. 'Food & Drink', 'Restaurants'). Use instead of 'day' to target a named section. Case-insensitive.",
+    ),
 };
 
 export const addNoteDescription = `
@@ -37,6 +43,7 @@ When to add a note (do this after adding each place or group of places):
 - Time guidance: "Budget 2-3 hours here. Open 10am-6pm, closed Tuesdays"
 - Neighborhood context: "This area is great for wandering — no rush, just explore the lanes"
 
+Can target a specific day, a custom named section (e.g. 'Food & Drink'), or the default 'Places to visit' list.
 Returns a confirmation of where the note was added.
 `.trim();
 
@@ -44,6 +51,7 @@ type Args = {
   trip_key: string;
   text: string;
   day?: string;
+  section?: string;
 };
 
 export async function addNote(
@@ -55,7 +63,7 @@ export async function addNote(
     const entry = await ctx.tripCache.getEntry(args.trip_key);
     const trip = entry.snapshot;
 
-    const target = findTargetSection(trip, args.day);
+    const target = findTargetSection(trip, args.day, args.section);
 
     // Step 1: Insert the note block with placeholder text
     const block = buildNoteBlock(userId);

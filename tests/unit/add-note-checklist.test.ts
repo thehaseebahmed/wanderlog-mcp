@@ -104,6 +104,27 @@ describe("findTargetSection", () => {
     const trip = fresh(checklistTrip);
     expect(() => findTargetSection(trip, "day 99")).toThrow();
   });
+
+  it("resolves a custom section by heading (case-insensitive)", () => {
+    const trip = fresh(checklistTrip);
+    const target = findTargetSection(trip, undefined, "notes");
+    expect(target.label).toBe('section "Notes"');
+    expect(target.section.heading).toBe("Notes");
+  });
+
+  it("throws when both day and section are provided", () => {
+    const trip = fresh(checklistTrip);
+    expect(() => findTargetSection(trip, "day 1", "Notes")).toThrow(
+      /both/,
+    );
+  });
+
+  it("throws when section heading is not found", () => {
+    const trip = fresh(checklistTrip);
+    expect(() => findTargetSection(trip, undefined, "Nonexistent Section")).toThrow(
+      /not found/,
+    );
+  });
 });
 
 // ---------------------------------------------------------------------------
