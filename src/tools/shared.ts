@@ -268,13 +268,30 @@ export function findTripCenter(
 }
 
 /**
- * Resolves the target section for adding a block — either a specific day
+ * Resolves the target section for adding a block — a named custom section, a specific day,
  * or the "Places to visit" list. Shared by add-place, add-note, add-checklist.
  */
 export function findTargetSection(
   trip: TripPlan,
   day?: string,
+  section?: string,
 ): { index: number; section: Section; label: string } {
+  if (day && section) {
+    throw new WanderlogValidationError("Provide either 'day' or 'section', not both.");
+  }
+  if (section) {
+    const found = findSectionByRef(trip, section);
+    if (!found) {
+      throw new WanderlogValidationError(
+        `Section "${section}" not found in trip. Check the section name and try again.`,
+      );
+    }
+    return {
+      index: found.index,
+      section: found.section,
+      label: `section "${found.section.heading || section}"`,
+    };
+  }
   if (day) {
     const daySection = resolveDay(trip, day);
     const found = findDaySectionByDate(trip, daySection.date!);
